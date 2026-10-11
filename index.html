@@ -1,19 +1,181 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>My static Space</title>
-		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body>
-		<div class="card">
-			<h1>Welcome to your static Space!</h1>
-			<p>You can modify this app directly by editing <i>index.html</i> in the Files and versions tab.</p>
-			<p>
-				Also don't forget to check the
-				<a href="https://huggingface.co/docs/hub/spaces" target="_blank">Spaces documentation</a>.
-			</p>
-		</div>
-	</body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TouchGrass Quest 🌿</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      color: #203629;
+      background: linear-gradient(135deg, #e9f7e9, #f8f6e9);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 560px;
+      padding: 28px;
+      border-radius: 24px;
+      background: white;
+      box-shadow: 0 12px 40px #24452a18;
+    }
+
+    h1 { margin-bottom: 8px; }
+    .intro { color: #617166; line-height: 1.6; }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-weight: 650;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      font: inherit;
+    }
+
+    select {
+      border: 1px solid #cbd9cc;
+      background: white;
+    }
+
+    button {
+      margin-top: 22px;
+      border: 0;
+      background: #267344;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #195b33; }
+
+    #result {
+      margin-top: 22px;
+      padding: 18px;
+      background: #f0f8ed;
+      border-radius: 16px;
+      line-height: 1.7;
+    }
+
+    #result h2 { margin-top: 0; }
+    .hidden { display: none; }
+
+    footer {
+      margin-top: 24px;
+      color: #718075;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🌿 TouchGrass Quest</h1>
+    <p class="intro">
+      A little less scrolling. A little more exploring.
+      Find a tiny adventure waiting outside.
+    </p>
+
+    <label for="place">Where will you explore?</label>
+    <select id="place">
+      <option>Park</option>
+      <option>Garden</option>
+      <option>Neighborhood</option>
+      <option>Backyard or balcony</option>
+    </select>
+
+    <label for="time">How much time do you have?</label>
+    <select id="time">
+      <option value="5">5 minutes</option>
+      <option value="10">10 minutes</option>
+      <option value="15">15 minutes</option>
+    </select>
+
+    <label for="mood">Choose your adventure</label>
+    <select id="mood">
+      <option value="notice">Observe nature</option>
+      <option value="move">Get moving</option>
+      <option value="relax">Relax and recharge</option>
+      <option value="create">Be creative</option>
+    </select>
+
+    <button id="generate">Generate my quest 🌱</button>
+
+    <section id="result" class="hidden" aria-live="polite">
+      <h2 id="questTitle"></h2>
+      <p id="questText"></p>
+      <button id="complete">✅ Quest completed!</button>
+      <p id="status"></p>
+    </section>
+
+    <footer>
+      Explore safely. Respect nature and local rules.
+      Every small adventure counts.
+    </footer>
+  </main>
+
+  <script>
+    const quests = {
+      notice: [
+        ["Nature Detective", "Find three different shades of green. Notice how sunlight changes their appearance."],
+        ["Tiny Wonders", "Look for three details you usually overlook: a leaf pattern, a cloud shape, or a tree's bark."],
+        ["Listen Closely", "Pause somewhere safe and identify three different natural or outdoor sounds."]
+      ],
+      move: [
+        ["Mini Explorer", "Take a comfortable walk and notice something interesting in a direction you rarely look."],
+        ["Color Hunt", "Walk at your own pace and find five things of different colors."],
+        ["Skyward Stroll", "Take a gentle walk and notice how the view changes as you move."]
+      ],
+      relax: [
+        ["Mindful Minute", "Sit somewhere comfortable and safely observe the sky, plants, or clouds."],
+        ["Fresh-Air Reset", "Put your phone away, breathe comfortably, and notice five things around you."],
+        ["Cloud Watcher", "Find a safe place to look at the sky and observe how the clouds move."]
+      ],
+      create: [
+        ["Nature Poet", "Find a natural detail and invent a title for it, as if it were a work of art."],
+        ["Texture Hunter", "Notice three different textures around you without touching unfamiliar plants or wildlife."],
+        ["Memory Snapshot", "Choose an outdoor scene and describe it in three vivid words."]
+      ]
+    };
+
+    const $ = id => document.getElementById(id);
+
+    $("generate").addEventListener("click", () => {
+      const place = $("place").value;
+      const time = $("time").value;
+      const mood = $("mood").value;
+      const options = quests[mood];
+      const quest = options[Math.floor(Math.random() * options.length)];
+
+      $("questTitle").textContent = "🌱 " + quest[0];
+      $("questText").textContent =
+        quest[1] + " Your setting: " + place +
+        ". Take about " + time + " minutes, at a comfortable pace.";
+      $("status").textContent = "";
+      $("complete").disabled = false;
+      $("complete").textContent = "✅ Quest completed!";
+      $("result").classList.remove("hidden");
+    });
+
+    $("complete").addEventListener("click", () => {
+      $("status").textContent = "Wonderful! You made time for the world outside. 🎉";
+      $("complete").textContent = "Quest recorded ✓";
+      $("complete").disabled = true;
+    });
+  </script>
+</body>
 </html>
+
