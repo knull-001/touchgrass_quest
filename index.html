@@ -128,53 +128,74 @@
   </main>
 
   <script>
-    const quests = {
-      notice: [
-        ["Nature Detective", "Find three different shades of green. Notice how sunlight changes their appearance."],
-        ["Tiny Wonders", "Look for three details you usually overlook: a leaf pattern, a cloud shape, or a tree's bark."],
-        ["Listen Closely", "Pause somewhere safe and identify three different natural or outdoor sounds."]
-      ],
-      move: [
-        ["Mini Explorer", "Take a comfortable walk and notice something interesting in a direction you rarely look."],
-        ["Color Hunt", "Walk at your own pace and find five things of different colors."],
-        ["Skyward Stroll", "Take a gentle walk and notice how the view changes as you move."]
-      ],
-      relax: [
-        ["Mindful Minute", "Sit somewhere comfortable and safely observe the sky, plants, or clouds."],
-        ["Fresh-Air Reset", "Put your phone away, breathe comfortably, and notice five things around you."],
-        ["Cloud Watcher", "Find a safe place to look at the sky and observe how the clouds move."]
-      ],
-      create: [
-        ["Nature Poet", "Find a natural detail and invent a title for it, as if it were a work of art."],
-        ["Texture Hunter", "Notice three different textures around you without touching unfamiliar plants or wildlife."],
-        ["Memory Snapshot", "Choose an outdoor scene and describe it in three vivid words."]
-      ]
-    };
+    
+<script type="module">
+  import { pipeline } from
+    "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2";
 
-    const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
+  let generator = null;
 
-    $("generate").addEventListener("click", () => {
+  $("generate").addEventListener("click", async () => {
+    const button = $("generate");
+    button.disabled = true;
+    button.textContent = "Loading AI... please wait 🌱";
+
+    $("result").classList.remove("hidden");
+    $("questTitle").textContent = "Preparing your adventure...";
+    $("questText").textContent =
+      "The first run downloads the model. This may take a while.";
+    $("status").textContent = "";
+
+    try {
+      if (!generator) {
+        generator = await pipeline(
+          "text2text-generation",
+          "Xenova/flan-t5-small"
+        );
+      }
+
       const place = $("place").value;
       const time = $("time").value;
       const mood = $("mood").value;
-      const options = quests[mood];
-      const quest = options[Math.floor(Math.random() * options.length)];
 
-      $("questTitle").textContent = "🌱 " + quest[0];
-      $("questText").textContent =
-        quest[1] + " Your setting: " + place +
-        ". Take about " + time + " minutes, at a comfortable pace.";
-      $("status").textContent = "";
+      const prompt =
+        "Create one safe outdoor nature quest for a beginner. " +
+        "Place: " + place + ". Duration: " + time +
+        " minutes. Mood: " + mood +
+        ". Give a short title and two simple instructions.";
+
+      const result = await generator(prompt, {
+        max_new_tokens: 90
+      });
+
+      $("questTitle").textContent = "🌿 Your AI Quest";
+      $("questText").textContent = result[0].generated_text;
+      $("status").textContent = "Generated with FLAN-T5 Small.";
       $("complete").disabled = false;
       $("complete").textContent = "✅ Quest completed!";
-      $("result").classList.remove("hidden");
-    });
+    } catch (error) {
+      console.error(error);
+      $("questTitle").textContent = "AI could not load";
+      $("questText").textContent =
+        "Check your internet connection and try again. " +
+        "If the model fails to load, your original app can " +
+        "still be restored from the previous commit.";
+      $("status").textContent = "";
+    } finally {
+      button.disabled = false;
+      button.textContent = "Generate my quest 🌱";
+    }
+  });
 
-    $("complete").addEventListener("click", () => {
-      $("status").textContent = "Wonderful! You made time for the world outside. 🎉";
-      $("complete").textContent = "Quest recorded ✓";
-      $("complete").disabled = true;
-    });
+  $("complete").addEventListener("click", () => {
+    $("status").textContent =
+      "Wonderful! You made time for the world outside. 🎉";
+    $("complete").textContent = "Quest recorded ✓";
+    $("complete").disabled = true;
+  });
+</script>
+
   </script>
 </body>
 </html>
